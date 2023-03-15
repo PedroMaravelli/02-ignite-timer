@@ -26,7 +26,6 @@ export function Home() {
             <option value="Projeto DH"></option>
             <option value="Projeto Inglês"></option>
             <option value="Projeto Matemática"></option>
-
           </datalist>
 
           <label htmlFor="minutesAmount">durante</label>
