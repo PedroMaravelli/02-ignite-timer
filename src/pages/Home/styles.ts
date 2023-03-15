@@ -94,6 +94,8 @@ export const StartCountdowmButton = styled.button`
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
+  opacity: 1;
+  cursor: pointer;
 
   &:disabled {
     opacity: 0.7;

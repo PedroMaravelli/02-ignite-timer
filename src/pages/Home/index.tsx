@@ -9,17 +9,40 @@ import {
   TaskInput,
 } from './styles'
 
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import * as zod from 'zod'
+
 export function Home() {
+
+  const newCycleFormValidationSchema = zod.object({
+    task: zod.string().min(1, 'Informe o nome da tarefa'),
+    MinuteAmountInput: zod.number().min(5).max(60),
+  })
+
+  const { register, handleSubmit, watch } = useForm({
+    resolver: zodResolver(newCycleFormValidationSchema)
+  })
+
+
+  function handleCreateNewCycle(data: any) {
+    console.log(data)
+  }
+  const task: boolean = watch('task')
+
+  const isSubmitDisable = !task
+
   return (
     <HomeContainer>
-      <form action="">
+      <form onSubmit={handleSubmit(handleCreateNewCycle)} action="">
         <FormContainer>
-          <label htmlFor="taskName">Vou trabalhar em</label>
+          <label htmlFor="task">Vou trabalhar em</label>
           <TaskInput
             type="text"
             placeholder="Dê um nome para o seu projeto"
-            id="taskName"
+            id="task"
             list="task-suggestions"
+            {...register('task', { valueAsNumber: true })}
           />
           <datalist id="task-suggestions">
             <option value="Projeto Ignite"></option>
@@ -48,7 +71,7 @@ export function Home() {
           <span>0</span>
         </CountdownContainer>
 
-        <StartCountdowmButton disabled={false} type="submit">
+        <StartCountdowmButton disabled={isSubmitDisable} type="submit">
           <Play size={24}></Play>
           Começar
         </StartCountdowmButton>
