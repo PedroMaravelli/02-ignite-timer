@@ -13,23 +13,27 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import * as zod from 'zod'
 
+const newCycleFormValidationSchema = zod.object({
+  task: zod.string().min(1, 'Informe o nome da tarefa'),
+  minutesAmount: zod.number().min(5).max(60),
+})
+type NewCycleFormData = zod.infer<typeof newCycleFormValidationSchema>
+
 export function Home() {
-
-  const newCycleFormValidationSchema = zod.object({
-    task: zod.string().min(1, 'Informe o nome da tarefa'),
-    MinuteAmountInput: zod.number().min(5).max(60),
+  const { register, handleSubmit, watch, reset } = useForm<NewCycleFormData>({
+    resolver: zodResolver(newCycleFormValidationSchema),
+    defaultValues: {
+      task: '',
+      minutesAmount: 0,
+    },
   })
 
-  const { register, handleSubmit, watch } = useForm({
-    resolver: zodResolver(newCycleFormValidationSchema)
-  })
-
-
-  function handleCreateNewCycle(data: any) {
+  function handleCreateNewCycle(data: NewCycleFormData) {
     console.log(data)
+    reset()
   }
-  const task: boolean = watch('task')
 
+  const task = watch('task')
   const isSubmitDisable = !task
 
   return (
@@ -42,7 +46,7 @@ export function Home() {
             placeholder="Dê um nome para o seu projeto"
             id="task"
             list="task-suggestions"
-            {...register('task', { valueAsNumber: true })}
+            {...register('task')}
           />
           <datalist id="task-suggestions">
             <option value="Projeto Ignite"></option>
@@ -59,6 +63,7 @@ export function Home() {
             step={5}
             min={5}
             max={60}
+            {...register('minutesAmount', { valueAsNumber: true })}
           />
           <span>minutos.</span>
         </FormContainer>
