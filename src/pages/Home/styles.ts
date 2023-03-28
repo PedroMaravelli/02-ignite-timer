@@ -80,14 +80,13 @@ export const Separator = styled.div`
   justify-content: center;
   align-items: center;
 `
-export const StartCountdowmButton = styled.button`
+export const BaseCountdowmButton = styled.button`
   width: 100%;
   height: 4rem;
   border-radius: 8px;
   cursor: pointer;
   padding: 1rem;
 
-  background: ${(props) => props.theme['green-500']};
   border: none;
 
   display: flex;
@@ -101,8 +100,16 @@ export const StartCountdowmButton = styled.button`
     opacity: 0.7;
     cursor: not-allowed;
   }
-
+`
+export const StartCountdowmButton = styled(BaseCountdowmButton)`
+  background: ${(props) => props.theme['green-500']};
   &:not(:disabled):hover {
     background: ${(props) => props.theme['green-700']};
+  }
+`
+export const StopCountdowmButton = styled(BaseCountdowmButton)`
+  background: ${(props) => props.theme['red-500']};
+  &:not(:disabled):hover {
+    background: ${(props) => props.theme['red-700']};
   }
 `

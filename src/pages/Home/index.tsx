@@ -1,4 +1,4 @@
-import { Play } from 'phosphor-react'
+import { HandPalm, Play } from 'phosphor-react'
 import { differenceInSeconds } from 'date-fns'
 import {
   CountdownContainer,
@@ -7,6 +7,7 @@ import {
   MinuteAmountInput,
   Separator,
   StartCountdowmButton,
+  StopCountdowmButton,
   TaskInput,
 } from './styles'
 
@@ -34,6 +35,7 @@ export function Home() {
     task: string
     minutesAmount: number
     startDate: Date
+    interruptedDate?: Date
   }
   const [cycles, setCycles] = useState<Cycle[]>([])
   const [activedCycleId, setActivedCycleId] = useState<string | null>(null)
@@ -49,20 +51,40 @@ export function Home() {
 
     setCycles((state) => [...state, newCycle])
     setActivedCycleId(newCycle.id)
+    setAmountSecondsPassed(0)
 
     reset()
   }
   const activeCycle = cycles.find((cycle) => cycle.id === activedCycleId)
 
   useEffect(() => {
+    let interval: number
     if (activeCycle) {
-      setInterval(() => {
+      // eslint-disable-next-line no-unused-vars
+      interval = setInterval(() => {
         setAmountSecondsPassed(
           differenceInSeconds(new Date(), activeCycle.startDate),
         )
       }, 1000)
     }
+
+    return () => {
+      clearInterval(interval)
+    }
   }, [activeCycle])
+
+  function handleInterruptedCycle() {
+    setCycles(
+      cycles.map((cycle) => {
+        if (cycle.id === activedCycleId) {
+          return { ...cycle, interruptedDate: new Date() }
+        } else {
+          return cycle
+        }
+      }),
+    )
+    setActivedCycleId(null)
+  }
 
   const totalSeconds = activeCycle ? activeCycle.minutesAmount * 60 : 0
   const currentSeconds = activeCycle ? totalSeconds - amountSecondsPassed : 0
@@ -72,6 +94,12 @@ export function Home() {
 
   const minutes = String(minutesAmount).padStart(2, '0')
   const seconds = String(secondsAmount).padStart(2, '0')
+
+  useEffect(() => {
+    if (activeCycle) {
+      document.title = `${minutes}:${seconds}`
+    }
+  }, [activeCycle, minutes, seconds])
 
   const task = watch('task')
   const isSubmitDisable = !task
@@ -85,6 +113,7 @@ export function Home() {
             type="text"
             placeholder="Dê um nome para o seu projeto"
             id="task"
+            disabled={!!activeCycle}
             list="task-suggestions"
             {...register('task')}
           />
@@ -100,6 +129,7 @@ export function Home() {
             type="number"
             id="minutesAmount"
             placeholder="00"
+            disabled={!!activeCycle}
             step={5}
             min={5}
             max={60}
@@ -116,10 +146,17 @@ export function Home() {
           <span>{seconds[1]}</span>
         </CountdownContainer>
 
-        <StartCountdowmButton disabled={isSubmitDisable} type="submit">
-          <Play size={24}></Play>
-          Começar
-        </StartCountdowmButton>
+        {activeCycle ? (
+          <StopCountdowmButton onClick={handleInterruptedCycle} type="button">
+            <HandPalm size={24}></HandPalm>
+            Interromper
+          </StopCountdowmButton>
+        ) : (
+          <StartCountdowmButton disabled={isSubmitDisable} type="submit">
+            <Play size={24}></Play>
+            Começar
+          </StartCountdowmButton>
+        )}
       </form>
     </HomeContainer>
   )
